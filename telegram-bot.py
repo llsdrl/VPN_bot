@@ -1,9 +1,13 @@
 import asyncio
 import logging
+import nest_asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
+nest_asyncio.apply()
 logging.basicConfig(level=logging.INFO)
+
+loop = asyncio.get_event_loop()
 
 tariffs = {
     "1month": {
@@ -313,4 +317,5 @@ async def main():
         raise
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop.create_task(main())
+    loop.run_forever()

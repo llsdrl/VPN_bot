@@ -1,12 +1,16 @@
 from flask import Flask, request
 import os
+import traceback
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Bot, CommandHandler, CallbackQueryHandler
 
 app = Flask(__name__)
 
 TOKEN = "8749332624:AAGYZevZVbF3f2lbOI8oUC_RnhCIv0uJRV8"
+
+print("Creating bot...")
 bot = Bot(token=TOKEN)
+print("Bot created!")
 
 tariffs = {
     "1month": {"name": "📅 1 месяц", "price": "109₽", "period": "1 месяц", "desc": "Для тестирования"},
@@ -78,18 +82,19 @@ async def setadmin(update: Update, context):
     ADMIN_CHAT_ID = update.message.chat_id
     await update.message.reply_text(f"✅ Admin: {ADMIN_CHAT_ID}")
 
-dispatcher = None
-
 @app.route(f"/{TOKEN}", methods=["POST"])
 async def webhook():
-    global dispatcher
-    update = Update.de_json(request.get_json(), bot)
-    if update.message and update.message.text == "/start":
-        await start(update, None)
-    elif update.message and update.message.text == "/setadmin":
-        await setadmin(update, None)
-    elif update.callback_query:
-        await button_callback(update, None)
+    try:
+        update = Update.de_json(request.get_json(), bot)
+        if update.message and update.message.text == "/start":
+            await start(update, None)
+        elif update.message and update.message.text == "/setadmin":
+            await setadmin(update, None)
+        elif update.callback_query:
+            await button_callback(update, None)
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
     return "OK"
 
 @app.route("/health")
@@ -101,4 +106,5 @@ def index():
     return "VPN Bot Running"
 
 if __name__ == "__main__":
+    print("Starting Flask...")
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

@@ -78,9 +78,12 @@ class FakeContext:
 
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
-    update = Update.de_json(request.get_json(), bot)
+    data = request.get_json()
+    print(f"DEBUG: {data}")
+    update = Update.de_json(data, bot)
     context = FakeContext(bot)
     if update.message:
+        print(f"DEBUG message: {update.message.text}")
         if update.message.text == "/start":
             start(update, context)
         elif update.message.text == "/setadmin":

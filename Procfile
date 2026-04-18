@@ -1,1 +1,1 @@
-web: pip install -r requirements.txt && gunicorn telegram-bot:app --bind 0.0.0.0:$PORT
+web: pip install -r requirements.txt && python -m gunicorn telegram-bot:app --bind 0.0.0.0:$PORT

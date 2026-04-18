@@ -1,8 +1,8 @@
 from flask import Flask, request
 import os
 import traceback
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Bot, CommandHandler, CallbackQueryHandler
+from telegram import Bot, Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CommandHandler, CallbackQueryHandler
 
 app = Flask(__name__)
 

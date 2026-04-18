@@ -1,107 +1,18 @@
-import os
-import asyncio
 from flask import Flask, request
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+import os
 
 app = Flask(__name__)
 
-TOKEN = os.environ.get("TELEGRAM_TOKEN", "8749332624:AAFyhffF1GElZxVBSdU-cb-GFmkSfdcDKkg")
-
-tariffs = {
-    "1month": {"name": "📅 1 месяц", "price": "109₽", "period": "1 месяц", "desc": "Для тестирования"},
-    "3month": {"name": "📅 3 месяца", "price": "290₽", "period": "3 месяца", "savings": "Скидка 11%", "desc": "Оптимально"},
-    "6month": {"name": "📅 6 месяцев", "price": "530₽", "period": "6 месяцев", "savings": "Скидка 19%", "desc": "Лучшая цена"}
-}
-
-ADMIN_CHAT_ID = None
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [InlineKeyboardButton("🔐 Подключить VPN", callback_data="tariffs")],
-        [InlineKeyboardButton("ℹ️ Информация", callback_data="info")],
-        [InlineKeyboardButton("🛠 Техподдержка", callback_data="support")],
-        [InlineKeyboardButton("📊 Мой статус", callback_data="status")]
-    ]
-    await update.message.reply_text(
-        "🔒 *Приватный VPN*\n\n• Обход блокировок\n• Скорость до 1 Гбит/с\n• 50+ стран\n• Без логов\n\nВыберите раздел:",
-        reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown"
-    )
-
-async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    data = query.data
-    
-    if data == "tariffs":
-        keyboard = [
-            [InlineKeyboardButton("📅 1 месяц - 109₽", callback_data="tariff_1month")],
-            [InlineKeyboardButton("📅 3 месяца - 290₽", callback_data="tariff_3month")],
-            [InlineKeyboardButton("📅 6 месяцев - 530₽", callback_data="tariff_6month")],
-            [InlineKeyboardButton("🔙 Назад", callback_data="back")]
-        ]
-        await query.edit_message_text("🔐 *Тарифы*\n\n⚡ До 1 Гбит/с\n🌍 50+ стран\n🔒 Безлимит", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-    elif data == "info":
-        keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data="back")]]
-        await query.edit_message_text("ℹ️ *Информация*\n\n🔒 Шифрование: WireGuard\n🌐 Протокол: WireGuard\n📍 Стран: 50+\n\n📊 *Подписка:* Не активна", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-    elif data == "support":
-        keyboard = [[InlineKeyboardButton("💬 Написать", url="https://t.me/llsdrl")], [InlineKeyboardButton("🔙 Назад", callback_data="back")]]
-        await query.edit_message_text("🛠 *Техподдержка*\n\n📱 @llsdrl\n⏰ 24/7", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-    elif data == "status":
-        keyboard = [[InlineKeyboardButton("🔙 Назад", callback_data="back")]]
-        await query.edit_message_text("📊 *Статус*\n\n🔐 VPN: Не активна\n📋 Тариф: Не выбран", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-    elif data == "back":
-        keyboard = [
-            [InlineKeyboardButton("🔐 Подключить VPN", callback_data="tariffs")],
-            [InlineKeyboardButton("ℹ️ Информация", callback_data="info")],
-            [InlineKeyboardButton("🛠 Техподдержка", callback_data="support")],
-            [InlineKeyboardButton("📊 Мой статус", callback_data="status")]
-        ]
-        await query.edit_message_text("🔒 *Приватный VPN*\n\n• Обход блокировок\n• Скорость до 1 Гбит/с\n• 50+ стран\n\nВыберите раздел:", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-    elif data.startswith("tariff_"):
-        key = data.split("_")[1]
-        t = tariffs[key]
-        savings = f"\n💎 {t['savings']}" if "savings" in t else ""
-        keyboard = [[InlineKeyboardButton("💳 Оплатить", callback_data=f"select_{key}")], [InlineKeyboardButton("🔙 К тарифам", callback_data="tariffs")]]
-        await query.edit_message_text(f"{t['name']}\n\n💰 *Цена:* {t['price']}\n⏱ *Период:* {t['period']}{savings}", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-    elif data.startswith("select_"):
-        key = data.split("_")[1]
-        t = tariffs[key]
-        user = query.from_user
-        username = f"@{user.username}" if user.username else "нет"
-        if ADMIN_CHAT_ID:
-            await context.bot.send_message(ADMIN_CHAT_ID, f"🛒 Заявка!\n👤 {user.first_name}\n🔗 {username}\n📋 {t['name']}\n💰 {t['price']}")
-        await query.edit_message_text(f"✅ *Заявка отправлена!*\n\nТариф: {t['name']}\nЦена: {t['price']}\n\n📱 @llsdrl", parse_mode="Markdown")
-
-async def setadmin(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    global ADMIN_CHAT_ID
-    ADMIN_CHAT_ID = update.message.chat_id
-    await update.message.reply_text(f"✅ Admin: {ADMIN_CHAT_ID}")
-
-application = None
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
+TOKEN = "8749332624:AAFyhffF1GElZxVBSdU-cb-GFmkSfdcDKkg"
 
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
-    global application, loop
-    if application:
-        update = request.get_json()
-        loop.run_until_complete(application.process_update(Update.de_json(update, application.bot)))
     return "OK"
 
 @app.route("/health")
 def health():
     return "OK"
 
-def main():
-    global application
-    application = Application.builder().token(TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("setadmin", setadmin))
-    application.add_handler(CallbackQueryHandler(button_callback))
-    print("Бот запущен!")
-
 if __name__ == "__main__":
-    main()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

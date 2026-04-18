@@ -6,7 +6,7 @@ python = "^3.11"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-python-telegram-bot = "20.7"
+python-telegram-bot = "21.9"
 flask = ">=3.0.0"
 
 [build-system]

@@ -1,6 +1,9 @@
 import asyncio
+import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+
+logging.basicConfig(level=logging.INFO)
 
 tariffs = {
     "1month": {
@@ -291,19 +294,23 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 async def main():
-    app = Application.builder().token("8749332624:AAFyhffF1GElZxVBSdU-cb-GFmkSfdcDKkg").build()
+    try:
+        app = Application.builder().token("8749332624:AAFyhffF1GElZxVBSdU-cb-GFmkSfdcDKkg").build()
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_command))
-    app.add_handler(CommandHandler("setadmin", setadmin_command))
-    app.add_handler(CommandHandler("tariffs", tariffs_menu))
-    app.add_handler(CommandHandler("info", info_command))
-    app.add_handler(CommandHandler("support", support_command))
-    app.add_handler(CommandHandler("status", status_command))
-    app.add_handler(CallbackQueryHandler(button_callback))
+        app.add_handler(CommandHandler("start", start))
+        app.add_handler(CommandHandler("help", help_command))
+        app.add_handler(CommandHandler("setadmin", setadmin_command))
+        app.add_handler(CommandHandler("tariffs", tariffs_menu))
+        app.add_handler(CommandHandler("info", info_command))
+        app.add_handler(CommandHandler("support", support_command))
+        app.add_handler(CommandHandler("status", status_command))
+        app.add_handler(CallbackQueryHandler(button_callback))
 
-    print("Бот запущен...")
-    await app.run_polling()
+        print("Бот запущен...")
+        await app.run_polling()
+    except Exception as e:
+        print(f"Ошибка: {e}")
+        raise
 
 if __name__ == "__main__":
     asyncio.run(main())

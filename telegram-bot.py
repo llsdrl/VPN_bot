@@ -6,7 +6,7 @@ from telegram import Bot, Update, InlineKeyboardButton, InlineKeyboardMarkup
 app = Flask(__name__)
 
 TOKEN = "8749332624:AAGYZevZVbF3f2lbOI8oUC_RnhCIv0uJRV8"
-bot = Bot(token=TOKEN, pool_timeout=10.0, connect_timeout=10.0)
+bot = Bot(token=TOKEN)
 
 tariffs = {
     "1month": {"name": "📅 1 месяц", "price": "109₽", "period": "1 месяц", "desc": "Для тестирования"},

@@ -1,5 +1,6 @@
+import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
 tariffs = {
     "1month": {
@@ -92,6 +93,10 @@ async def tariff_info(update: Update, context: ContextTypes.DEFAULT_TYPE, tariff
     )
 
 async def info_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [InlineKeyboardButton("🔙 Назад", callback_data="back")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
         "ℹ️ *Информация о VPN*\n\n"
         "🔒 *Шифрование:* WireGuard (AES-256)\n"
@@ -105,6 +110,7 @@ async def info_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"Статус: {subscription_info['status']}\n"
         f"Тариф: {subscription_info['plan']}\n"
         f"Истекает: {subscription_info['expires']}",
+        reply_markup=reply_markup,
         parse_mode="Markdown"
     )
 
@@ -128,12 +134,17 @@ async def support_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [InlineKeyboardButton("🔙 Назад", callback_data="back")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
         "📊 *Мой статус*\n\n"
         f"🔐 VPN: {subscription_info['status']}\n"
         f"📋 Тариф: {subscription_info['plan']}\n"
         f"📅 Истекает: {subscription_info['expires']}\n\n"
         "Выберите тариф для активации!",
+        reply_markup=reply_markup,
         parse_mode="Markdown"
     )
 
@@ -279,8 +290,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="Markdown"
         )
 
-def main():
-    app = ApplicationBuilder().token("8749332624:AAFyhffF1GElZxVBSdU-cb-GFmkSfdcDKkg").build()
+async def main():
+    app = Application.builder().token("8749332624:AAFyhffF1GElZxVBSdU-cb-GFmkSfdcDKkg").build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
@@ -292,7 +303,7 @@ def main():
     app.add_handler(CallbackQueryHandler(button_callback))
 
     print("Бот запущен...")
-    app.run_polling()
+    await app.run_polling()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

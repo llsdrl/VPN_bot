@@ -1,1 +1,1 @@
-web: python telegram-bot.py
+web: gunicorn telegram-bot:app --bind 0.0.0.0:$PORT
